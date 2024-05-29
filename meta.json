@@ -1,0 +1,13 @@
+{
+  "module_id": "mcvella:chatgpt-vision",
+  "visibility": "public",
+  "url": "https://github.com/mcvella/viam-chatgpt-vision",
+  "description": "This vision model leverages the OpenAI's GPT-4o image capabilities to allow for image classification and querying.",
+  "models": [
+    {
+      "api": "rdk:service:vision",
+      "model": "mcvella:vision:chatgpt"
+    }
+  ],
+  "entrypoint": "run.sh"
+}
