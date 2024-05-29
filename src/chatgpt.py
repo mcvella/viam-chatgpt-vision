@@ -3,9 +3,6 @@ from typing_extensions import Self
 
 from typing import Any, Final, List, Mapping, Optional, Union
 
-from PIL import Image
-
-from viam.media.video import RawImage
 from viam.proto.common import PointCloudObject
 from viam.proto.service.vision import Classification, Detection
 from viam.resource.types import RESOURCE_NAMESPACE_RDK, RESOURCE_TYPE_SERVICE, Subtype
@@ -24,7 +21,7 @@ from viam.media.utils.pil import viam_to_pil_image
 from viam.logging import getLogger
 
 import base64
-import BytesIO
+import io
 from openai import AsyncOpenAI
 
 LOGGER = getLogger(__name__)
@@ -50,7 +47,7 @@ class chatgpt(Vision, Reconfigurable):
 
     def reconfigure(self, config: ComponentConfig, dependencies: Mapping[ResourceName, ResourceBase]):
         self.DEPS = dependencies
-        self.model = AsyncOpenAI(config.attributes.fields["api_key"].string_value)
+        self.model = AsyncOpenAI(api_key=config.attributes.fields["api_key"].string_value)
         return
 
     async def get_cam_image(
@@ -99,10 +96,10 @@ class chatgpt(Vision, Reconfigurable):
         if extra != None and extra.get('question') != None:
             question = extra['question']
 
-        buffered = BytesIO()
+        buffered = io.BytesIO()
         pil_img = viam_to_pil_image(image)
         pil_img.save(buffered, format="JPEG")
-        img_str = base64.b64encode(buffered.getvalue())
+        img_str = base64.b64encode(buffered.getvalue()).decode('utf-8')
 
         chat_completion = await self.model.chat.completions.create(
             messages=[
@@ -121,6 +118,7 @@ class chatgpt(Vision, Reconfigurable):
             ],
             model="gpt-4o",
         )
+        LOGGER.warn(chat_completion)
         classifications.append({"class_name": chat_completion.choices[0].message.content, "confidence": 1})
         return classifications
 
