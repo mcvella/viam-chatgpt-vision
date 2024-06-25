@@ -23,7 +23,8 @@ On the new service panel, copy and paste the following attribute template into y
 
 ```json
 {
-  "api_key": "<OpenAI api key>"
+  "api_key": "<OpenAI api key>",
+  "default_question": "describe this image"
 }
 ```
 
@@ -37,6 +38,7 @@ The following attributes are available for `mcvella:vision:chatgpt` model:
 | Name | Type | Inclusion | Description |
 | ---- | ---- | --------- | ----------- |
 | `api_key` | string | **Required** |  OpenAI API key |
+| `default_question` | string | |  Default question, can be overridden via extra in classification request |
 
 ### Example Configurations
 

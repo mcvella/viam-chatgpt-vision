@@ -30,6 +30,7 @@ class chatgpt(Vision, Reconfigurable):
     MODEL: ClassVar[Model] = Model(ModelFamily("mcvella", "vision"), "chatgpt")
     
     model: AsyncOpenAI
+    default_question: str = "describe this image"
 
     # Constructor
     @classmethod
@@ -48,6 +49,8 @@ class chatgpt(Vision, Reconfigurable):
     def reconfigure(self, config: ComponentConfig, dependencies: Mapping[ResourceName, ResourceBase]):
         self.DEPS = dependencies
         self.model = AsyncOpenAI(api_key=config.attributes.fields["api_key"].string_value)
+        if config.attributes.fields["api_key"].string_value != "":
+            self.default_question = config.attributes.fields["default_question"].string_value
         return
 
     async def get_cam_image(
@@ -92,7 +95,7 @@ class chatgpt(Vision, Reconfigurable):
         timeout: Optional[float] = None,
     ) -> List[Classification]:
         classifications = []
-        question = "describe this image"
+        question = self.default_question
         if extra != None and extra.get('question') != None:
             question = extra['question']
 
